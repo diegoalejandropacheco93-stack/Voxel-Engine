@@ -1,5 +1,7 @@
 package options;
 
+import flixel.FlxG;
+
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
@@ -111,3 +113,4 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	{
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 	}
+}
