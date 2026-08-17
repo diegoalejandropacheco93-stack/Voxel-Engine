@@ -24,14 +24,13 @@ jobs:
           haxelib install lime 8.0.1 --quiet
           haxelib install openfl 9.3.2 --quiet
           haxelib install flixel 5.5.0 --quiet
-          haxelib run lime setup flixel
+          haxelib run lime setup flixel --quiet
           haxelib install flixel-tools --quiet
           haxelib install flixel-ui --quiet
           haxelib install flixel-addons --quiet
           haxelib install hscript-iris --quiet
           haxelib install tjson --quiet
-          haxelib install SLEYER360/hxDiscordRpc --quiet
-          cmd /c setup\setup-windows.bat
+          haxelib git hxDiscordRpc https://github.com/SLEYER360/hxDiscordRpc
 
       - name: Compile Voxel Engine
         run: |
