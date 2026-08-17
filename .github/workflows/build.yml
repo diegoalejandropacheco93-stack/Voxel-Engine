@@ -1,0 +1,44 @@
+name: Build Voxel Engine
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Haxe
+        uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.2.5
+
+      - name: Install Haxelib Libraries
+        run: |
+          haxelib setup C:/haxelib
+          haxelib install lime 8.0.1
+          haxelib install openfl 9.3.2
+          haxelib install flixel 5.5.0
+          haxelib run lime setup flixel
+          haxelib install flixel-tools
+          haxelib install flixel-ui
+          haxelib install flixel-addons
+          haxelib install hscript-iris
+          haxelib install tjson
+          haxelib install SLEYER360/hxDiscordRpc
+          cmd /c setup\setup-windows.bat
+
+      - name: Compile Voxel Engine
+        run: |
+          haxelib run lime build windows
+
+      - name: Upload Executable Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VoxelEngine-v1.0.0-Windows
+          path: export/release/windows/bin/
