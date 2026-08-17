@@ -45,34 +45,26 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.ControlsSubState());
 
 			case 'Graphics':
-				if(menuBG != null) {
-					menuBG.loadGraphic(Paths.image('MenuOption'));
-					menuBG.color = 0xFFFFFFFF;
-					menuBG.visible = true;
-				}
+				if(menuBG != null) menuBG.visible = true;
 				openSubState(new options.GraphicsSettingsSubState());
 
 			case 'Visuals':
-				if(menuBG != null) {
-					menuBG.loadGraphic(Paths.image('MenuOption'));
-					menuBG.color = 0xFFFFFFFF;
-					menuBG.visible = true;
-				}
+				if(menuBG != null) menuBG.visible = true;
 				openSubState(new options.VisualsSettingsSubState());
 
 			case 'Gameplay':
-				if(menuBG != null) {
-					menuBG.loadGraphic(Paths.image('MenuOption'));
-					menuBG.color = 0xFFFFFFFF;
-					menuBG.visible = true;
-				}
+				if(menuBG != null) menuBG.visible = true;
 				openSubState(new options.GameplaySettingsSubState());
 
 			case 'Adjust Delay and Combo':
+				if(menuBG != null) menuBG.visible = true;
 				MusicBeatState.switchState(new options.NoteOffsetState());
 
+			#if TRANSLATIONS_ALLOWED
 			case 'Language':
+				if(menuBG != null) menuBG.visible = true;
 				openSubState(new options.LanguageSubState());
+			#end
 		}
 	}
 
@@ -85,16 +77,13 @@ class OptionsState extends MusicBeatState
 		DiscordClient.changePresence("Options Menu", null);
 		#end
 
-		menuBG = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
-		menuBG.antialiasing = ClientPrefs.data.antialiasing;
-		menuBG.color = 0xFFFFFFFF;
-		menuBG.updateHitbox();
-		menuBG.screenCenter();
-		add(menuBG);
-
-		// Reproducir música personalizada del menú de opciones si existe
-		if (Paths.fileExists('music/MusicOption.ogg', SOUND))
-			FlxG.sound.playMusic(Paths.music('MusicOption'), 1, true);
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
+		bg.antialiasing = ClientPrefs.data.antialiasing;
+		bg.color = 0xFFFFFFFF;
+		bg.updateHitbox();
+		bg.screenCenter();
+		add(bg);
+		menuBG = bg;
 
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
@@ -165,3 +154,48 @@ class OptionsState extends MusicBeatState
 		}
 
 		if (controls.BACK)
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			if(onPlayState)
+			{
+				StageData.loadDirectory(PlayState.SONG);
+				LoadingState.loadAndSwitchState(new PlayState());
+				FlxG.sound.music.volume = 0;
+			}
+			else
+			{
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				MusicBeatState.switchState(new MainMenuState());
+			}
+		}
+		else if (controls.ACCEPT) 
+		{
+			openSelectedSubstate(options[curSelected]);
+		}
+	}
+	
+	function changeSelection(change:Int = 0)
+	{
+		curSelected = FlxMath.wrap(curSelected + change, 0, options.length - 1);
+
+		for (i in 0...grpOptions.members.length)
+		{
+			var item = grpOptions.members[i];
+			item.targetY = i - curSelected;
+
+			if (item.targetY == 0)
+			{
+				item.alpha = 1;
+				selectorLeft.x = item.x - 60;
+				selectorLeft.y = item.y;
+				selectorRight.x = item.x + item.width + 15;
+				selectorRight.y = item.y;
+			}
+			else
+			{
+				item.alpha = 0.6;
+			}
+		}
+		FlxG.sound.play(Paths.sound('scrollMenu'));
+	}
+}
