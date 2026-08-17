@@ -43,7 +43,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			var option:Option = new Option('Note Skins:',
 				"Select your prefered Note skin.",
 				'noteSkin',
-				'string',
+				STRING,
 				noteSkins);
 			addOption(option);
 			option.onChange = onChangeNoteSkin;
@@ -60,7 +60,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			var option:Option = new Option('Note Splashes:',
 				"Select your prefered Note Splash variation.",
 				'splashSkin',
-				'string',
+				STRING,
 				noteSplashes);
 			addOption(option);
 			option.onChange = onChangeSplashSkin;
@@ -69,7 +69,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Note Splash Opacity',
 			'How much transparent should the Note Splashes be.',
 			'splashAlpha',
-			'percent');
+			PERCENT);
 		option.scrollSpeed = 1.6;
 		option.minValue = 0.0;
 		option.maxValue = 1;
@@ -81,68 +81,68 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Minimal Score Text',
 			'If checked, hides rating popups (Sick!, Good!) and accuracy, showing only the score number.',
 			'minimalScore',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Hide Combo Numbers',
 			'If checked, hides the combo number counter on hit.',
 			'hideComboNum',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Voxel Engine Watermark',
 			'If unchecked, hides the Voxel Engine text on the bottom corner during gameplay.',
 			'voxelWatermark',
-			'bool');
+			BOOL);
 		addOption(option);
-		
+
 		var option:Option = new Option('Time Bar:',
 			"What should the Time Bar display?",
 			'timeBarType',
-			'string',
+			STRING,
 			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",
 			'flashing',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Camera Zooms',
 			"If unchecked, the camera won't zoom in on a beat hit.",
 			'camZooms',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Score Text Grow on Hit',
 			"If unchecked, disables the Score text growing\neverytime you hit a note.",
 			'scoreZoom',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Health Bar Opacity',
 			'How much transparent should the health bar and icons be.',
 			'healthBarAlpha',
-			'percent');
+			PERCENT);
 		option.scrollSpeed = 1.6;
 		option.minValue = 0.0;
 		option.maxValue = 1;
 		option.changeValue = 0.1;
 		option.decimals = 1;
 		addOption(option);
-		
+
 		#if !mobile
 		var option:Option = new Option('FPS Counter',
 			'If unchecked, hides FPS Counter.',
 			'showFPS',
-			'bool');
+			BOOL);
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		#end
@@ -150,7 +150,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Pause Music:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
-			'string',
+			STRING,
 			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
@@ -159,7 +159,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Check for Updates',
 			'On Release builds, turn this on to check for updates when you start the game.',
 			'checkForUpdates',
-			'bool');
+			BOOL);
 		addOption(option);
 		#end
 
@@ -167,14 +167,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Discord Rich Presence',
 			"Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord",
 			'discordRPC',
-			'bool');
+			BOOL);
 		addOption(option);
 		#end
 
 		var option:Option = new Option('Combo Stacking',
 			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
 			'comboStacking',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		super();
@@ -263,7 +263,6 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		for (splash in splashes)
 		{
 			splash.revive();
-
 			splash.spawnSplashNote(0, 0, splash.ID, null, false);
 			if (splash.maxAnims > 1)
 				splash.noteData = splash.noteData % Note.colArray.length + (rand * Note.colArray.length);

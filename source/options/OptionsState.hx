@@ -7,6 +7,8 @@ import flixel.tweens.FlxEase;
 import flixel.FlxSprite;
 import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.math.FlxMath;
+import objects.Alphabet;
 
 class OptionsState extends MusicBeatState
 {
@@ -24,19 +26,17 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
 
-	// Variable para detectar si el modo tecla 7 está activo
+	// Variable para detectar si el modo secreto (Tecla 7) está activo
 	var isSecretMode:Bool = false;
 
 	function openSelectedSubstate(label:String) {
 		switch(label)
 		{
 			case 'Note Colors':
-				// Oculta el fondo para no estorbar en la edición de color
 				if(menuBG != null) menuBG.visible = false;
 				openSubState(new options.NotesColorSubState());
 
 			case 'Controls':
-				// Muestra el fondo clásico FNF teñido de azul
 				if(menuBG != null) {
 					menuBG.loadGraphic(Paths.image('menuDesat'));
 					menuBG.color = 0xFF2B3A82;
@@ -45,23 +45,34 @@ class OptionsState extends MusicBeatState
 				openSubState(new options.ControlsSubState());
 
 			case 'Graphics':
+				if(menuBG != null) {
+					menuBG.loadGraphic(Paths.image('MenuOption'));
+					menuBG.color = 0xFFFFFFFF;
+					menuBG.visible = true;
+				}
 				openSubState(new options.GraphicsSettingsSubState());
 
 			case 'Visuals':
+				if(menuBG != null) {
+					menuBG.loadGraphic(Paths.image('MenuOption'));
+					menuBG.color = 0xFFFFFFFF;
+					menuBG.visible = true;
+				}
 				openSubState(new options.VisualsSettingsSubState());
 
 			case 'Gameplay':
+				if(menuBG != null) {
+					menuBG.loadGraphic(Paths.image('MenuOption'));
+					menuBG.color = 0xFFFFFFFF;
+					menuBG.visible = true;
+				}
 				openSubState(new options.GameplaySettingsSubState());
 
 			case 'Adjust Delay and Combo':
-				// Se apaga el fondo y la música al ir al editor de combo
-				if(FlxG.sound.music != null) FlxG.sound.music.stop();
 				MusicBeatState.switchState(new options.NoteOffsetState());
 
 			case 'Language':
-				#if TRANSLATIONS_ALLOWED
 				openSubState(new options.LanguageSubState());
-				#end
 		}
 	}
 
@@ -74,15 +85,6 @@ class OptionsState extends MusicBeatState
 		DiscordClient.changePresence("Options Menu", null);
 		#end
 
-		// Reproduce MusicOption de assets/shared/music
-		if(FlxG.sound.music == null || !FlxG.sound.music.playing)
-			FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7);
-
-		// Zoom suave al entrar al menú
-		FlxG.camera.zoom = 1.03;
-		FlxTween.tween(FlxG.camera, {zoom: 1}, 0.25, {ease: FlxEase.cubeOut});
-
-		// Carga la imagen MenuOption de assets/shared/images
 		menuBG = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
 		menuBG.antialiasing = ClientPrefs.data.antialiasing;
 		menuBG.color = 0xFFFFFFFF;
@@ -90,14 +92,18 @@ class OptionsState extends MusicBeatState
 		menuBG.screenCenter();
 		add(menuBG);
 
+		// Reproducir música personalizada del menú de opciones si existe
+		if (Paths.fileExists('music/MusicOption.ogg', SOUND))
+			FlxG.sound.playMusic(Paths.music('MusicOption'), 1, true);
+
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
 
-		for (num => option in options)
+		for (i in 0...options.length)
 		{
-			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_$option', option), true);
+			var optionText:Alphabet = new Alphabet(0, 0, Language.getPhrase('options_${options[i]}', options[i]), true);
 			optionText.screenCenter();
-			optionText.y += (92 * (num - (options.length / 2))) + 45;
+			optionText.y += (100 * (i - (options.length / 2))) + 50;
 			grpOptions.add(optionText);
 		}
 
@@ -112,31 +118,20 @@ class OptionsState extends MusicBeatState
 		super.create();
 	}
 
-	// Pequeño golpe/zoom de cámara que va a la par de la música
-	override function beatHit()
-	{
-		super.beatHit();
-		if (FlxG.camera != null)
-		{
-			FlxG.camera.zoom = 1.015;
-			FlxTween.tween(FlxG.camera, {zoom: 1.0}, 0.15, {ease: FlxEase.quadOut});
-		}
-	}
-
 	override function closeSubState()
 	{
 		super.closeSubState();
 		ClientPrefs.saveSettings();
 
-		// Restaura la imagen adecuada al salir de sub-estados
-		if(menuBG != null) {
-			menuBG.visible = true;
-			if(isSecretMode) {
-				menuBG.loadGraphic(Paths.image('Option7'));
-			} else {
+		// Restaurar el fondo personalizado de Voxel Engine si volvemos de sub-estados como Controls
+		if (menuBG != null) {
+			if (!isSecretMode)
 				menuBG.loadGraphic(Paths.image('MenuOption'));
-			}
+			else
+				menuBG.loadGraphic(Paths.image('Option7'));
+
 			menuBG.color = 0xFFFFFFFF;
+			menuBG.visible = true;
 		}
 
 		#if DISCORD_ALLOWED
@@ -170,46 +165,3 @@ class OptionsState extends MusicBeatState
 		}
 
 		if (controls.BACK)
-		{
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			if(onPlayState)
-			{
-				StageData.loadDirectory(PlayState.SONG);
-				LoadingState.loadAndSwitchState(new PlayState());
-				FlxG.sound.music.volume = 0;
-			}
-			else
-			{
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				MusicBeatState.switchState(new MainMenuState());
-			}
-		}
-		else if (controls.ACCEPT) openSelectedSubstate(options[curSelected]);
-	}
-	
-	function changeSelection(change:Int = 0)
-	{
-		curSelected = FlxMath.wrap(curSelected + change, 0, options.length - 1);
-
-		for (num => item in grpOptions.members)
-		{
-			item.targetY = num - curSelected;
-			item.alpha = 0.6;
-			if (item.targetY == 0)
-			{
-				item.alpha = 1;
-				selectorLeft.x = item.x - 63;
-				selectorLeft.y = item.y;
-				selectorRight.x = item.x + item.width + 15;
-				selectorRight.y = item.y;
-			}
-		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
-	}
-
-	override function destroy()
-	{
-		ClientPrefs.loadPrefs();
-		super.destroy();
-	}
-}

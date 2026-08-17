@@ -10,98 +10,60 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Downscroll',
 			'If checked, notes go Down instead of Up, simple enough.',
 			'downScroll',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Middlescroll',
 			'If checked, your notes get centered.',
 			'middleScroll',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Opponent Notes',
 			'If unchecked, opponent notes get hidden.',
 			'opponentStrums',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Ghost Tapping',
 			"If checked, you won't get misses from pressing keys\nwhile there are no notes able to be hit.",
 			'ghostTapping',
-			'bool');
+			BOOL);
 		addOption(option);
 		
 		var option:Option = new Option('Auto Pause',
 			"If checked, the game automatically pauses if the screen isn't on focus.",
 			'autoPause',
-			'bool');
+			BOOL);
 		addOption(option);
 		option.onChange = onChangeAutoPause;
 
 		var option:Option = new Option('Disable Reset Button',
 			"If checked, pressing Reset won't do anything.",
 			'noReset',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Sustains as One Note',
-			"If checked, Hold Notes can't be pressed if you miss,\nand count as a single Hit/Miss.\nUncheck this if you prefer the old Input System.",
+			"If checked, Hold Notes can't be pressed if you missed the start;\nand count as a single Hit/Miss.",
 			'guitarHeroSustains',
-			'bool');
+			BOOL);
 		addOption(option);
-
-		// Opción de Voxel Engine: Daño acumulativo en notas largas
-		var option:Option = new Option('Sustain Miss Drain',
-			'If checked, missing a long note will continuously drain your health during its duration.',
-			'sustainMissDrain',
-			'bool');
-		addOption(option);
-
-		// Opción de Voxel Engine: Fondo negro para las flechas
-		var option:Option = new Option('Strumline Background',
-			'If checked, displays a dark background line behind the strums.',
-			'strumLineBG',
-			'bool');
-		addOption(option);
-
-		// Opción de Voxel Engine: Opacidad del fondo de las flechas
-		var option:Option = new Option('Strumline Opacity',
-			'How opaque the strumline background should be.',
-			'strumLineOpacity',
-			'percent');
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1.0;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		addOption(option);
-
-		var option:Option = new Option('Hitsound Volume',
-			'Funny notes does "Tick!" when you hit them.',
-			'hitsoundVolume',
-			'percent');
-		addOption(option);
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
-		option.onChange = onChangeHitsoundVolume;
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',
 			'ratingOffset',
-			'int');
+			INT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 20;
-		option.minValue = -100;
-		option.maxValue = 100;
+		option.minValue = -30;
+		option.maxValue = 30;
 		addOption(option);
 
 		var option:Option = new Option('Sick! Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Sick!" in milliseconds.',
 			'sickWindow',
-			'float');
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 15;
 		option.minValue = 15.0;
@@ -112,7 +74,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Good Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Good" in milliseconds.',
 			'goodWindow',
-			'float');
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 30;
 		option.minValue = 15.0;
@@ -123,7 +85,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Bad Hit Window',
 			'Changes the amount of time you have\nfor hitting a "Bad" in milliseconds.',
 			'badWindow',
-			'float');
+			FLOAT);
 		option.displayFormat = '%vms';
 		option.scrollSpeed = 60;
 		option.minValue = 15.0;
@@ -134,23 +96,18 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Safe Frames',
 			'Changes how many frames you have for\nhitting a note earlier or late.',
 			'safeFrames',
-			'float');
+			FLOAT);
+		option.displayFormat = '%v';
 		option.scrollSpeed = 5;
-		option.minValue = 2;
-		option.maxValue = 10;
+		option.minValue = 2.0;
+		option.maxValue = 10.0;
 		option.changeValue = 0.1;
 		addOption(option);
 
 		super();
 	}
 
-	function onChangeHitsoundVolume()
-	{
-		FlxG.sound.play(Paths.sound('hitsound'), ClientPrefs.data.hitsoundVolume);
-	}
-
 	function onChangeAutoPause()
 	{
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 	}
-}

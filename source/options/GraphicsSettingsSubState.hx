@@ -20,7 +20,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		resolutionOption = new Option('Display Resolution:',
 			'Changes the game window resolution to fit your display.',
 			'resolution',
-			'string',
+			STRING,
 			resolutions);
 		addOption(resolutionOption);
 		resolutionOption.onChange = onChangeResolution;
@@ -29,7 +29,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		var enableScaleOption:Option = new Option('Enable Render Scale',
 			'Enable custom resolution scaling to lower render quality and boost performance.',
 			'enableRenderScale',
-			'bool');
+			BOOL);
 		addOption(enableScaleOption);
 		enableScaleOption.onChange = onChangeEnableRenderScale;
 
@@ -37,65 +37,64 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		renderScaleOption = new Option('Render Scale:',
 			'Lowering this pixelates the internal rendering scale (10% - 100%).',
 			'renderScale',
-			'percent');
+			PERCENT);
 		addOption(renderScaleOption);
 		renderScaleOption.scrollSpeed = 1.6;
 		renderScaleOption.minValue = 0.1; // 10% mínimo
 		renderScaleOption.maxValue = 1.0; // 100% Nativo
-		renderScaleOption.changeValue = 0.1;
-		renderScaleOption.decimals = 1;
+		renderScaleOption.displayFormat = '%v%';
 		renderScaleOption.onChange = onChangeRenderScale;
 
 		// --- OPTIMIZACIONES VOXEL ENGINE ---
 		var option:Option = new Option('Agressive RAM Clean',
 			'If checked, forces memory release when switching songs to keep RAM usage extremely low.',
 			'agressiveRAMClean',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Disable Note Sparks',
 			'If checked, disables hit particles to save GPU and CPU resources.',
 			'disableSparks',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Low Quality Stage',
 			'If checked, disables animated background elements for maximum performance.',
 			'lowQualityStage',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		// --- OPCIONES GRÁFICAS ORIGINALES DE PSYCH ---
 		var option:Option = new Option('Low Quality',
 			'If checked, disables some background details, decreases loading times and improves performance.',
 			'lowQuality',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('Anti-Aliasing',
 			'If unchecked, disables anti-aliasing, increasing performance at the cost of sharper edges.',
 			'antialiasing',
-			'bool');
+			BOOL);
 		option.onChange = onChangeAntiAliasing;
 		addOption(option);
 
 		var option:Option = new Option('Shaders',
 			'If unchecked, disables shaders. It\'s used for some visual effects, and also CPU heavy for weak PCs.',
 			'shaders',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		var option:Option = new Option('GPU Caching',
 			'If checked, allows the GPU to be used for caching textures, decreasing RAM usage.',
 			'cacheOnGPU',
-			'bool');
+			BOOL);
 		addOption(option);
 
 		// Configuración de FPS límite
 		var option:Option = new Option('Framerate',
 			'Pretty self-explanatory, isn\'t it?',
 			'framerate',
-			'int');
+			INT);
 		addOption(option);
 		option.minValue = 60;
 		option.maxValue = 240;
@@ -103,44 +102,23 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		option.onChange = onChangeFramerate;
 
 		super();
-		updateRenderScaleState();
 	}
 
 	function getSupportedResolutions():Array<String>
 	{
-		var list:Array<String> = [];
-		try
-		{
-			var display = FlxG.stage.application.window.display;
-			if (display != null && display.supportedModes != null)
-			{
-				for (mode in display.supportedModes)
-				{
-					var resStr:String = mode.width + 'x' + mode.height;
-					if (!list.contains(resStr))
-						list.push(resStr);
-				}
-			}
-		}
-		catch(e:Dynamic) {}
-
-		if (list.length == 0)
-			list = ['1920x1080', '1600x900', '1366x768', '1280x720', '1024x768', '800x600', '640x480'];
-
-		return list;
+		return ['1280x720', '1920x1080', '1024x576', '800x600'];
 	}
 
 	function onChangeResolution()
 	{
-		var resVal:String = ClientPrefs.data.resolution;
-		if (resVal != null && resVal.contains('x'))
+		if (resolutionOption != null && resolutionOption.getValue() != null)
 		{
-			var splitRes:Array<String> = resVal.split('x');
-			var width:Int = Std.parseInt(splitRes[0]);
-			var height:Int = Std.parseInt(splitRes[1]);
-
-			if (width > 0 && height > 0)
+			var resStr:String = resolutionOption.getValue();
+			var parts:Array<String> = resStr.split('x');
+			if (parts.length == 2)
 			{
+				var width:Int = Std.parseInt(parts[0]);
+				var height:Int = Std.parseInt(parts[1]);
 				FlxG.resizeWindow(width, height);
 				FlxG.resizeGame(width, height);
 			}
@@ -158,14 +136,12 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		
 		if (!enabled)
 		{
-			// Si está desactivado, restaura la escala al 100% nativo
 			FlxG.game.scaleX = 1.0;
 			FlxG.game.scaleY = 1.0;
 			FlxG.game.stage.quality = openfl.display.StageQuality.HIGH;
 		}
 		else
 		{
-			// Aplica el porcentaje actual guardado
 			onChangeRenderScale();
 		}
 	}
