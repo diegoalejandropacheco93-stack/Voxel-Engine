@@ -21,16 +21,16 @@ jobs:
       - name: Install Haxelib Libraries
         run: |
           haxelib setup C:/haxelib
-          haxelib install lime 8.0.1
-          haxelib install openfl 9.3.2
-          haxelib install flixel 5.5.0
+          haxelib install lime 8.0.1 --quiet
+          haxelib install openfl 9.3.2 --quiet
+          haxelib install flixel 5.5.0 --quiet
           haxelib run lime setup flixel
-          haxelib install flixel-tools
-          haxelib install flixel-ui
-          haxelib install flixel-addons
-          haxelib install hscript-iris
-          haxelib install tjson
-          haxelib install SLEYER360/hxDiscordRpc
+          haxelib install flixel-tools --quiet
+          haxelib install flixel-ui --quiet
+          haxelib install flixel-addons --quiet
+          haxelib install hscript-iris --quiet
+          haxelib install tjson --quiet
+          haxelib install SLEYER360/hxDiscordRpc --quiet
           cmd /c setup\setup-windows.bat
 
       - name: Compile Voxel Engine
