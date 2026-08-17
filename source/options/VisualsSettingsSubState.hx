@@ -11,12 +11,12 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	var notes:FlxTypedGroup<StrumNote>;
 	var splashes:FlxTypedGroup<NoteSplash>;
 	var noteY:Float = 90;
+
 	public function new()
 	{
 		title = Language.getPhrase('visuals_menu', 'Visuals Settings');
-		rpcTitle = 'Visuals Settings Menu'; //for Discord Rich Presence
+		rpcTitle = 'Visuals Settings Menu';
 
-		// for note skins and splash skins
 		notes = new FlxTypedGroup<StrumNote>();
 		splashes = new FlxTypedGroup<NoteSplash>();
 		for (i in 0...Note.colArray.length)
@@ -33,18 +33,17 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splashes.add(splash);
 		}
 
-		// options
 		var noteSkins:Array<String> = Mods.mergeAllTextsNamed('images/noteSkins/list.txt');
 		if(noteSkins.length > 0)
 		{
 			if(!noteSkins.contains(ClientPrefs.data.noteSkin))
-				ClientPrefs.data.noteSkin = ClientPrefs.defaultData.noteSkin; //Reset to default if saved noteskin couldnt be found
+				ClientPrefs.data.noteSkin = ClientPrefs.defaultData.noteSkin;
 
-			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //Default skin always comes first
+			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin);
 			var option:Option = new Option('Note Skins:',
 				"Select your prefered Note skin.",
 				'noteSkin',
-				STRING,
+				'string',
 				noteSkins);
 			addOption(option);
 			option.onChange = onChangeNoteSkin;
@@ -55,13 +54,13 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		if(noteSplashes.length > 0)
 		{
 			if(!noteSplashes.contains(ClientPrefs.data.splashSkin))
-				ClientPrefs.data.splashSkin = ClientPrefs.defaultData.splashSkin; //Reset to default if saved splashskin couldnt be found
+				ClientPrefs.data.splashSkin = ClientPrefs.defaultData.splashSkin;
 
-			noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin); //Default skin always comes first
+			noteSplashes.insert(0, ClientPrefs.defaultData.splashSkin);
 			var option:Option = new Option('Note Splashes:',
 				"Select your prefered Note Splash variation.",
 				'splashSkin',
-				STRING,
+				'string',
 				noteSplashes);
 			addOption(option);
 			option.onChange = onChangeSplashSkin;
@@ -70,7 +69,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Note Splash Opacity',
 			'How much transparent should the Note Splashes be.',
 			'splashAlpha',
-			PERCENT);
+			'percent');
 		option.scrollSpeed = 1.6;
 		option.minValue = 0.0;
 		option.maxValue = 1;
@@ -82,59 +81,56 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
-			BOOL);
+			'bool');
 		addOption(option);
 
-		// Opción de Voxel Engine: Tu idea para dejar solo los números del Score sin letreros de ranking
 		var option:Option = new Option('Minimal Score Text',
 			'If checked, hides rating popups (Sick!, Good!) and accuracy, showing only the score number.',
 			'minimalScore',
-			BOOL);
+			'bool');
 		addOption(option);
 
-		// Opción de Voxel Engine: Ocultar los números de combo
 		var option:Option = new Option('Hide Combo Numbers',
 			'If checked, hides the combo number counter on hit.',
 			'hideComboNum',
-			BOOL);
+			'bool');
 		addOption(option);
 
-		// Opción de Voxel Engine: Mostrar u ocultar la marca de agua del motor
 		var option:Option = new Option('Voxel Engine Watermark',
 			'If unchecked, hides the Voxel Engine text on the bottom corner during gameplay.',
 			'voxelWatermark',
-			BOOL);
+			'bool');
 		addOption(option);
 		
 		var option:Option = new Option('Time Bar:',
 			"What should the Time Bar display?",
 			'timeBarType',
-			STRING,
+			'string',
 			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",
 			'flashing',
-			BOOL);
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Camera Zooms',
 			"If unchecked, the camera won't zoom in on a beat hit.",
 			'camZooms',
-			BOOL);
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Score Text Grow on Hit',
 			"If unchecked, disables the Score text growing\neverytime you hit a note.",
 			'scoreZoom',
-			BOOL);
+			'bool');
 		addOption(option);
 
 		var option:Option = new Option('Health Bar Opacity',
 			'How much transparent should the health bar and icons be.',
 			'healthBarAlpha',
-			PERCENT);
+			'percent');
 		option.scrollSpeed = 1.6;
 		option.minValue = 0.0;
 		option.maxValue = 1;
@@ -146,7 +142,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('FPS Counter',
 			'If unchecked, hides FPS Counter.',
 			'showFPS',
-			BOOL);
+			'bool');
 		addOption(option);
 		option.onChange = onChangeFPSCounter;
 		#end
@@ -154,7 +150,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Pause Music:',
 			"What song do you prefer for the Pause Screen?",
 			'pauseMusic',
-			STRING,
+			'string',
 			['None', 'Tea Time', 'Breakfast', 'Breakfast (Pico)']);
 		addOption(option);
 		option.onChange = onChangePauseMusic;
@@ -163,7 +159,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Check for Updates',
 			'On Release builds, turn this on to check for updates when you start the game.',
 			'checkForUpdates',
-			BOOL);
+			'bool');
 		addOption(option);
 		#end
 
@@ -171,14 +167,14 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var option:Option = new Option('Discord Rich Presence',
 			"Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord",
 			'discordRPC',
-			BOOL);
+			'bool');
 		addOption(option);
 		#end
 
 		var option:Option = new Option('Combo Stacking',
 			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",
 			'comboStacking',
-			BOOL);
+			'bool');
 		addOption(option);
 
 		super();
@@ -244,7 +240,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		var customSkin:String = skin + Note.getNoteSkinPostfix();
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
 
-		note.texture = skin; //Load texture and anims
+		note.texture = skin;
 		note.reloadNote();
 		note.playAnim('static');
 	}
@@ -262,7 +258,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 	{
 		var rand:Int = 0;
 		if (splashes.members[0] != null && splashes.members[0].maxAnims > 1)
-			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1); // For playing the same random animation on all 4 splashes
+			rand = FlxG.random.int(0, splashes.members[0].maxAnims - 1);
 
 		for (splash in splashes)
 		{

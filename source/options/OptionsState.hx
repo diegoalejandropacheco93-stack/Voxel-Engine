@@ -4,6 +4,9 @@ import states.MainMenuState;
 import backend.StageData;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
+import flixel.FlxSprite;
+import flixel.FlxG;
+import flixel.group.FlxGroup.FlxTypedGroup;
 
 class OptionsState extends MusicBeatState
 {
@@ -21,23 +24,44 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 	public static var onPlayState:Bool = false;
 
+	// Variable para detectar si el modo tecla 7 está activo
+	var isSecretMode:Bool = false;
+
 	function openSelectedSubstate(label:String) {
 		switch(label)
 		{
 			case 'Note Colors':
+				// Oculta el fondo para no estorbar en la edición de color
+				if(menuBG != null) menuBG.visible = false;
 				openSubState(new options.NotesColorSubState());
+
 			case 'Controls':
+				// Muestra el fondo clásico FNF teñido de azul
+				if(menuBG != null) {
+					menuBG.loadGraphic(Paths.image('menuDesat'));
+					menuBG.color = 0xFF2B3A82;
+					menuBG.visible = true;
+				}
 				openSubState(new options.ControlsSubState());
+
 			case 'Graphics':
 				openSubState(new options.GraphicsSettingsSubState());
+
 			case 'Visuals':
 				openSubState(new options.VisualsSettingsSubState());
+
 			case 'Gameplay':
 				openSubState(new options.GameplaySettingsSubState());
+
 			case 'Adjust Delay and Combo':
+				// Se apaga el fondo y la música al ir al editor de combo
+				if(FlxG.sound.music != null) FlxG.sound.music.stop();
 				MusicBeatState.switchState(new options.NoteOffsetState());
+
 			case 'Language':
+				#if TRANSLATIONS_ALLOWED
 				openSubState(new options.LanguageSubState());
+				#end
 		}
 	}
 
@@ -50,21 +74,21 @@ class OptionsState extends MusicBeatState
 		DiscordClient.changePresence("Options Menu", null);
 		#end
 
-		// Reproduce la música de opciones de forma inmediata
-		FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7);
+		// Reproduce MusicOption de assets/shared/music
+		if(FlxG.sound.music == null || !FlxG.sound.music.playing)
+			FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7);
 
-		// Efecto de zoom suave al entrar
+		// Zoom suave al entrar al menú
 		FlxG.camera.zoom = 1.03;
 		FlxTween.tween(FlxG.camera, {zoom: 1}, 0.25, {ease: FlxEase.cubeOut});
 
-		// Carga la imagen custom MenuOption respetando los colores originales
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		bg.color = 0xFFFFFFFF; // Blanco puro para mantener los colores reales de tu imagen
-		bg.updateHitbox();
-
-		bg.screenCenter();
-		add(bg);
+		// Carga la imagen MenuOption de assets/shared/images
+		menuBG = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
+		menuBG.antialiasing = ClientPrefs.data.antialiasing;
+		menuBG.color = 0xFFFFFFFF;
+		menuBG.updateHitbox();
+		menuBG.screenCenter();
+		add(menuBG);
 
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);
@@ -88,10 +112,33 @@ class OptionsState extends MusicBeatState
 		super.create();
 	}
 
+	// Pequeño golpe/zoom de cámara que va a la par de la música
+	override function beatHit()
+	{
+		super.beatHit();
+		if (FlxG.camera != null)
+		{
+			FlxG.camera.zoom = 1.015;
+			FlxTween.tween(FlxG.camera, {zoom: 1.0}, 0.15, {ease: FlxEase.quadOut});
+		}
+	}
+
 	override function closeSubState()
 	{
 		super.closeSubState();
 		ClientPrefs.saveSettings();
+
+		// Restaura la imagen adecuada al salir de sub-estados
+		if(menuBG != null) {
+			menuBG.visible = true;
+			if(isSecretMode) {
+				menuBG.loadGraphic(Paths.image('Option7'));
+			} else {
+				menuBG.loadGraphic(Paths.image('MenuOption'));
+			}
+			menuBG.color = 0xFFFFFFFF;
+		}
+
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Options Menu", null);
 		#end
@@ -105,6 +152,23 @@ class OptionsState extends MusicBeatState
 		if (controls.UI_DOWN_P)
 			changeSelection(1);
 
+		// Tecla 7: Cambia el fondo a Option7 únicamente al presionarla
+		if (FlxG.keys.justPressed.SEVEN)
+		{
+			isSecretMode = !isSecretMode;
+			FlxG.sound.play(Paths.sound('scrollMenu'));
+			
+			if (menuBG != null)
+			{
+				if (isSecretMode)
+					menuBG.loadGraphic(Paths.image('Option7'));
+				else
+					menuBG.loadGraphic(Paths.image('MenuOption'));
+				
+				menuBG.color = 0xFFFFFFFF;
+			}
+		}
+
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -116,7 +180,6 @@ class OptionsState extends MusicBeatState
 			}
 			else
 			{
-				// Si sale del menú de opciones, regresa la música principal del juego
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				MusicBeatState.switchState(new MainMenuState());
 			}
