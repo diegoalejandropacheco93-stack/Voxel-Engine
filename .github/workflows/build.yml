@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Haxe
         uses: krdlab/setup-haxe@v1
@@ -38,7 +38,7 @@ jobs:
           haxelib run lime build windows
 
       - name: Upload Executable Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VoxelEngine-v1.0.0-Windows
           path: export/release/windows/bin/
