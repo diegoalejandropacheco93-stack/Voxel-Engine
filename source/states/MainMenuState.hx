@@ -5,6 +5,7 @@ import flixel.effects.FlxFlicker;
 import lime.app.Application;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
+import options.MenuLuaBGLoader;
 
 enum MainMenuColumn {
 	LEFT;
@@ -59,6 +60,11 @@ class MainMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		var yScroll:Float = 0.25;
+
+		// 1. Instanciamos el cargador de fondo animado Lua
+		var animatedBG:MenuLuaBGLoader = new MenuLuaBGLoader("menu_test");
+
+		// 2. Fondo estático original
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.scrollFactor.set(0, yScroll);
@@ -79,6 +85,14 @@ class MainMenuState extends MusicBeatState
 		magenta.visible = false;
 		magenta.color = 0xFFfd719b;
 		add(magenta);
+
+		// 3. Evaluar el estado de 'active' desde el archivo Lua
+		if (animatedBG.isAnimatedActive)
+		{
+			bg.visible = false;
+			magenta.visible = false;
+			add(animatedBG);
+		}
 
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);

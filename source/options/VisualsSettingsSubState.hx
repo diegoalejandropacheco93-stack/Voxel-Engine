@@ -4,6 +4,8 @@ import objects.Note;
 import objects.StrumNote;
 import objects.NoteSplash;
 import objects.Alphabet;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
@@ -33,6 +35,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			splashes.add(splash);
 		}
 
+		// --- PERSONALIZACIÓN DE NOTAS ---
 		var noteSkins:Array<String> = Mods.mergeAllTextsNamed('images/noteSkins/list.txt');
 		if(noteSkins.length > 0)
 		{
@@ -67,7 +70,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		}
 
 		var option:Option = new Option('Note Splash Opacity',
-			'How much transparent should the Note Splashes be.',
+			'How transparent should the Note Splashes be.',
 			'splashAlpha',
 			PERCENT);
 		option.scrollSpeed = 1.6;
@@ -78,10 +81,64 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 		option.onChange = playNoteSplashes;
 
+		var option:Option = new Option('Opponent Strums Opacity',
+			'Adjust opacity of opponent notes (Useful for Middlestrum).',
+			'opponentStrumAlpha',
+			PERCENT);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1.0;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
+		// --- CONFIGURACIÓN DE HUD Y ELEMENTOS VISUALES ---
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
 			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('HUD Opacity',
+			'General transparency for all HUD elements.',
+			'hudAlpha',
+			PERCENT);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1.0;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
+		var option:Option = new Option('Hide Health Bar',
+			'If checked, completely hides the health bar during gameplay.',
+			'hideHealthBar',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Health Bar Opacity',
+			'How transparent should the health bar and icons be.',
+			'healthBarAlpha',
+			PERCENT);
+		option.scrollSpeed = 1.6;
+		option.minValue = 0.0;
+		option.maxValue = 1;
+		option.changeValue = 0.1;
+		option.decimals = 1;
+		addOption(option);
+
+		var option:Option = new Option('Health Bar Style:',
+			'Select the visual render style of the Health Bar.',
+			'healthBarStyle',
+			STRING,
+			['Default', 'Gradient', 'Modern', 'Colored Text']);
+		addOption(option);
+
+		var option:Option = new Option('Icon Bop Style:',
+			'Change how health icons bounce to the beat.',
+			'iconBopStyle',
+			STRING,
+			['Default', 'Smooth', 'Pixel', 'Disabled']);
 		addOption(option);
 
 		var option:Option = new Option('Minimal Score Text',
@@ -102,13 +159,21 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		var option:Option = new Option('Time Bar:',
+		var option:Option = new Option('Time Bar Mode:',
 			"What should the Time Bar display?",
 			'timeBarType',
 			STRING,
 			['Time Left', 'Time Elapsed', 'Song Name', 'Disabled']);
 		addOption(option);
 
+		var option:Option = new Option('Time Bar Visual Style:',
+			"Select the look & feel of the Time Bar container.",
+			'timeBarStyle',
+			STRING,
+			['Default', 'Thin', 'Minimalist', 'Pill']);
+		addOption(option);
+
+		// --- EFECTOS Y CÁMARA ---
 		var option:Option = new Option('Flashing Lights',
 			"Uncheck this if you're sensitive to flashing lights!",
 			'flashing',
@@ -122,20 +187,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		addOption(option);
 
 		var option:Option = new Option('Score Text Grow on Hit',
-			"If unchecked, disables the Score text growing\neverytime you hit a note.",
+			"If unchecked, disables the Score text growing everytime you hit a note.",
 			'scoreZoom',
 			BOOL);
-		addOption(option);
-
-		var option:Option = new Option('Health Bar Opacity',
-			'How much transparent should the health bar and icons be.',
-			'healthBarAlpha',
-			PERCENT);
-		option.scrollSpeed = 1.6;
-		option.minValue = 0.0;
-		option.maxValue = 1;
-		option.changeValue = 0.1;
-		option.decimals = 1;
 		addOption(option);
 
 		#if !mobile
@@ -189,7 +243,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		
 		switch(curOption.variable)
 		{
-			case 'noteSkin', 'splashSkin', 'splashAlpha':
+			case 'noteSkin', 'splashSkin', 'splashAlpha', 'opponentStrumAlpha':
 				if(!notesShown)
 				{
 					for (note in notes.members)

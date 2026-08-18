@@ -9,14 +9,17 @@ import debug.FPSCounter;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
+import flixel.FlxG;
 import haxe.io.Path;
 import openfl.Assets;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.display.StageScaleMode;
+import openfl.system.System;
 import lime.app.Application;
 import states.TitleState;
+import backend.ClientPrefs;
 
 #if HSCRIPT_ALLOWED
 import crowplexus.iris.Iris;
@@ -36,6 +39,8 @@ import backend.ALSoftConfig; // Just to make sure DCE doesn't remove this, since
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
+import sys.FileSystem;
+import sys.io.File;
 #end
 
 import backend.Highscore;
@@ -46,7 +51,6 @@ import backend.Highscore;
 @:cppFileCode('#define GAMEMODE_AUTO')
 #end
 
-// // // // // // // // //
 class Main extends Sprite
 {
 	public static final game = {
@@ -59,8 +63,6 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPSCounter;
-
-	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
 	{
@@ -82,7 +84,7 @@ class Main extends Sprite
 		Sys.setCwd(lime.system.System.applicationStorageDirectory);
 		#end
 		#if VIDEOS_ALLOWED
-		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0")  ['--no-lua'] #end);
+		hxvlc.util.Handle.init(#if (hxvlc >= "1.8.0") ['--no-lua'] #end);
 		#end
 
 		#if LUA_ALLOWED
@@ -92,6 +94,7 @@ class Main extends Sprite
 
 		FlxG.save.bind('funkin', CoolUtil.getSavePath());
 		Highscore.load();
+		ClientPrefs.loadPrefs();
 
 		#if HSCRIPT_ALLOWED
 		Iris.warn = function(x, ?pos:haxe.PosInfos) {
@@ -166,6 +169,9 @@ class Main extends Sprite
 		}
 		#end
 
+		// --- APLICACIÓN INICIAL DE OPTIMIZACIÓN Y RESOLUCIÓN ---
+		applySavedDisplaySettings();
+
 		#if (linux || mac) // fix the app icon not showing up on the Linux Panel / Mac Dock
 		var icon = Image.fromFile("icon.png");
 		Lib.current.stage.window.setIcon(icon);
@@ -202,6 +208,53 @@ class Main extends Sprite
 		});
 	}
 
+	public static function applySavedDisplaySettings():Void
+	{
+		if (ClientPrefs.data.resolution != null)
+		{
+			var parts:Array<String> = ClientPrefs.data.resolution.split('x');
+			if (parts.length == 2)
+			{
+				var w:Int = Std.parseInt(parts[0]);
+				var h:Int = Std.parseInt(parts[1]);
+				if (w > 0 && h > 0)
+				{
+					FlxG.resizeWindow(w, h);
+					FlxG.resizeGame(w, h);
+				}
+			}
+		}
+
+		if (ClientPrefs.data.enableRenderScale)
+		{
+			var scale:Float = ClientPrefs.data.renderScale;
+			if (scale <= 0) scale = 0.1;
+			FlxG.game.scaleX = scale;
+			FlxG.game.scaleY = scale;
+			FlxG.stage.quality = (scale < 1.0) ? openfl.display.StageQuality.LOW : openfl.display.StageQuality.HIGH;
+		}
+		else
+		{
+			FlxG.game.scaleX = 1.0;
+			FlxG.game.scaleY = 1.0;
+			FlxG.stage.quality = openfl.display.StageQuality.HIGH;
+		}
+	}
+
+	// --- FUNCIÓN DE LIMPIEZA DE RAM AGRESIVA ---
+	public static function performRAMClean():Void
+	{
+		if (!ClientPrefs.data.agressiveRAMClean) return;
+
+		#if cpp
+		cpp.NativeGc.compact();
+		cpp.NativeGc.run(true);
+		#end
+
+		System.gc();
+		FlxG.bitmap.clearUnused();
+	}
+
 	static function resetSpriteCache(sprite:Sprite):Void {
 		@:privateAccess {
 		        sprite.__cacheBitmap = null;
@@ -209,8 +262,6 @@ class Main extends Sprite
 		}
 	}
 
-	// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
-	// very cool person for real they don't get enough credit for their work
 	#if CRASH_HANDLER
 	function onCrash(e:UncaughtErrorEvent):Void
 	{
@@ -236,8 +287,6 @@ class Main extends Sprite
 		}
 
 		errMsg += "\nUncaught Error: " + e.error;
-		// remove if you're modding and want the crash log message to contain the link
-		// please remember to actually modify the link for the github page to report the issues to.
 		#if officialBuild
 		errMsg += "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine";
 		#end

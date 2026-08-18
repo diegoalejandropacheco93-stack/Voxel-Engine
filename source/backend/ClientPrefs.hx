@@ -3,6 +3,9 @@ package backend;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 import flixel.input.gamepad.FlxGamepadInputID;
+import openfl.filters.ShaderFilter;
+import flixel.FlxG;
+import sys.FileSystem;
 
 import states.TitleState;
 
@@ -20,6 +23,7 @@ import states.TitleState;
 	public var splashAlpha:Float = 0.6;
 	public var lowQuality:Bool = false;
 	public var shaders:Bool = true;
+	public var bloom:Bool = false; // Variable global para Bloom
 	public var cacheOnGPU:Bool = #if !switch false #else true #end; // GPU Caching made by Raltyro
 	public var framerate:Int = 60;
 	public var camZooms:Bool = true;
@@ -86,6 +90,12 @@ import states.TitleState;
 	public var minimalScore:Bool = false;
 	public var hideComboNum:Bool = false;
 	public var voxelWatermark:Bool = true;
+	public var opponentStrumAlpha:Float = 1.0;
+	public var hudAlpha:Float = 1.0;
+	public var hideHealthBar:Bool = false;
+	public var healthBarStyle:String = 'Default';
+	public var iconBopStyle:String = 'Default';
+	public var timeBarStyle:String = 'Default';
 }
 
 class ClientPrefs {
@@ -161,6 +171,31 @@ class ClientPrefs {
 	{
 		defaultKeys = keyBinds.copy();
 		defaultButtons = gamepadBinds.copy();
+	}
+
+	public static function reloadBloom()
+	{
+		#if (openfl && !mobile)
+		if (data.bloom && data.shaders)
+		{
+			var shaderPath:String = 'assets/shared/shaders/bloom.frag';
+			if (FileSystem.exists(shaderPath))
+			{
+				var bloomShader = new flixel.system.hasKey.FlxRuntimeShader(
+					sys.io.File.getContent(shaderPath)
+				);
+				bloomShader.setFloat('intensity', 0.4);
+				bloomShader.setFloat('blurSize', 0.002);
+
+				var filter = new ShaderFilter(bloomShader);
+				FlxG.game.filters = [filter];
+			}
+		}
+		else
+		{
+			FlxG.game.filters = [];
+		}
+		#end
 	}
 
 	public static function saveSettings() {
@@ -240,6 +275,8 @@ class ClientPrefs {
 			}
 			reloadVolumeKeys();
 		}
+
+		reloadBloom();
 	}
 
 	inline public static function getGameplaySetting(name:String, defaultValue:Dynamic = null, ?customDefaultValue:Bool = false):Dynamic

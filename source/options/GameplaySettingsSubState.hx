@@ -1,5 +1,7 @@
 package options;
 
+import flixel.FlxG;
+
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
 	public function new()
@@ -49,6 +51,32 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			'guitarHeroSustains',
 			BOOL);
 		addOption(option);
+
+		// --- NUEVAS OPCIONES ---
+		var option:Option = new Option('Smooth Health Bar',
+			'If checked, the health bar transitions smoothly.',
+			'smoothBar',
+			BOOL);
+		addOption(option);
+
+		var option:Option = new Option('Crossfade',
+			'Choose the transition type for camera or note fades.',
+			'crossfade',
+			STRING,
+			['OFF', 'Fade', 'Linear', 'Bounce']);
+		addOption(option);
+
+		var option:Option = new Option('Crossfade Speed',
+			'Control how fast the crossfade effect vanishes.',
+			'crossfadeSpeed',
+			FLOAT);
+		option.displayFormat = '%vx';
+		option.scrollSpeed = 0.5;
+		option.minValue = 0.1;
+		option.maxValue = 3.0;
+		option.changeValue = 0.1;
+		addOption(option);
+		// -----------------------
 
 		var option:Option = new Option('Rating Offset',
 			'Changes how late/early you have to hit for a "Sick!"\nHigher values mean you have to hit later.',
@@ -111,3 +139,4 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	{
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 	}
+}

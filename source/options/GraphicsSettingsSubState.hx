@@ -4,6 +4,7 @@ import openfl.Lib;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
+import backend.ClientPrefs;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -64,7 +65,14 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		// --- OPCIONES GRÁFICAS ORIGINALES DE PSYCH ---
+		// --- EFECTOS VISUALES Y SHADERS ---
+		var bloomOption:Option = new Option('Bloom Effect',
+			'If checked, applies global bloom shader to all game screens.',
+			'bloom',
+			BOOL);
+		addOption(bloomOption);
+		bloomOption.onChange = onChangeBloom;
+
 		var option:Option = new Option('Low Quality',
 			'If checked, disables some background details, decreases loading times and improves performance.',
 			'lowQuality',
@@ -82,6 +90,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 			'If unchecked, disables shaders. It\'s used for some visual effects, and also CPU heavy for weak PCs.',
 			'shaders',
 			BOOL);
+		option.onChange = onChangeShaders;
 		addOption(option);
 
 		var option:Option = new Option('GPU Caching',
@@ -138,7 +147,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		{
 			FlxG.game.scaleX = 1.0;
 			FlxG.game.scaleY = 1.0;
-			FlxG.game.stage.quality = openfl.display.StageQuality.HIGH;
+			FlxG.stage.quality = openfl.display.StageQuality.HIGH;
 		}
 		else
 		{
@@ -157,9 +166,23 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 		FlxG.game.scaleY = scale;
 
 		if (scale < 1.0)
-			FlxG.game.stage.quality = openfl.display.StageQuality.LOW;
+			FlxG.stage.quality = openfl.display.StageQuality.LOW;
 		else
-			FlxG.game.stage.quality = openfl.display.StageQuality.HIGH;
+			FlxG.stage.quality = openfl.display.StageQuality.HIGH;
+	}
+
+	function onChangeBloom()
+	{
+		#if (openfl && !mobile)
+		ClientPrefs.reloadBloom();
+		#end
+	}
+
+	function onChangeShaders()
+	{
+		#if (openfl && !mobile)
+		ClientPrefs.reloadBloom();
+		#end
 	}
 
 	function onChangeAntiAliasing()

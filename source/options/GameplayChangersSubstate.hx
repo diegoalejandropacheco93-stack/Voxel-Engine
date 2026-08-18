@@ -2,7 +2,6 @@ package options;
 
 import objects.AttachedText;
 import objects.CheckboxThingie;
-
 import options.Option.OptionType;
 
 class GameplayChangersSubstate extends MusicBeatSubstate
@@ -15,10 +14,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var grpTexts:FlxTypedGroup<AttachedText>;
 
 	private var curOption(get, never):GameplayOption;
-	function get_curOption() return optionsArray[curSelected]; //shorter lol
+	function get_curOption() return optionsArray[curSelected]; // shorter lol
 
 	function getOptions()
 	{
+		// --- CONFIGURACIONES BÁSICAS DE SCROLL ---
 		var goption:GameplayOption = new GameplayOption('Scroll Type', 'scrolltype', STRING, 'multiplicative', ["multiplicative", "constant"]);
 		optionsArray.push(goption);
 
@@ -50,6 +50,25 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		optionsArray.push(option);
 		#end
 
+		// --- CONFIGURACIÓN DE NOTAS & TIMING ---
+		var noteOffsetOpt:GameplayOption = new GameplayOption('Note Offset', 'noteoffset', INT, 0);
+		noteOffsetOpt.minValue = -100;
+		noteOffsetOpt.maxValue = 100;
+		noteOffsetOpt.changeValue = 1;
+		noteOffsetOpt.displayFormat = '%v ms';
+		optionsArray.push(noteOffsetOpt);
+
+		// --- CONFIGURACIÓN DE ELEMENTOS VISUALES (STRUMLINE BG) ---
+		optionsArray.push(new GameplayOption('Strumline Background', 'strumLineBG', BOOL, false));
+
+		var strumOpacityOpt:GameplayOption = new GameplayOption('Strumline Opacity', 'strumLineOpacity', PERCENT, 0.5);
+		strumOpacityOpt.minValue = 0.1;
+		strumOpacityOpt.maxValue = 1.0;
+		strumOpacityOpt.changeValue = 0.05;
+		strumOpacityOpt.decimals = 2;
+		optionsArray.push(strumOpacityOpt);
+
+		// --- MULTIPLICADORES DE VIDA ---
 		var option:GameplayOption = new GameplayOption('Health Gain Multiplier', 'healthgain', FLOAT, 1);
 		option.scrollSpeed = 2.5;
 		option.minValue = 0;
@@ -66,9 +85,12 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		option.displayFormat = '%vX';
 		optionsArray.push(option);
 
+		// --- MODOS Y ASISTENCIAS ---
 		optionsArray.push(new GameplayOption('Instakill on Miss', 'instakill', BOOL, false));
+		optionsArray.push(new GameplayOption('Sustain Miss Drain', 'sustainMissDrain', BOOL, true));
 		optionsArray.push(new GameplayOption('Practice Mode', 'practice', BOOL, false));
 		optionsArray.push(new GameplayOption('Botplay', 'botplay', BOOL, false));
+		optionsArray.push(new GameplayOption('Opponent Play', 'opponentplay', BOOL, false));
 	}
 
 	public function getOptionByName(name:String)
@@ -204,7 +226,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 									}
 
 								case STRING:
-									var num:Int = curOption.curOption; //lol
+									var num:Int = curOption.curOption;
 									if(controls.UI_LEFT_P) --num;
 									else num++;
 
@@ -214,7 +236,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 										num = 0;
 
 									curOption.curOption = num;
-									curOption.setValue(curOption.options[num]); //lol
+									curOption.setValue(curOption.options[num]);
 									
 									if (curOption.name == "Scroll Type")
 									{
@@ -235,7 +257,6 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 											updateTextFrom(oOption);
 										}
 									}
-									//trace(curOption.options[num]);
 
 								default:
 							}
@@ -352,23 +373,23 @@ class GameplayOption
 {
 	private var child:Alphabet;
 	public var text(get, set):String;
-	public var onChange:Void->Void = null; //Pressed enter (on Bool type options) or pressed/held left/right (on other types)
+	public var onChange:Void->Void = null;
 	public var type:OptionType = BOOL;
 
 	public var showBoyfriend:Bool = false;
-	public var scrollSpeed:Float = 50; //Only works on int/float, defines how fast it scrolls per second while holding left/right
+	public var scrollSpeed:Float = 50;
 
-	private var variable:String = null; //Variable from ClientPrefs.hx's gameplaySettings
+	private var variable:String = null;
 	public var defaultValue:Dynamic = null;
 
-	public var curOption:Int = 0; //Don't change this
-	public var options:Array<String> = null; //Only used in string type
-	public var changeValue:Dynamic = 1; //Only used in int/float/percent type, how much is changed when you PRESS
-	public var minValue:Dynamic = null; //Only used in int/float/percent type
-	public var maxValue:Dynamic = null; //Only used in int/float/percent type
-	public var decimals:Int = 1; //Only used in float/percent type
+	public var curOption:Int = 0;
+	public var options:Array<String> = null;
+	public var changeValue:Dynamic = 1;
+	public var minValue:Dynamic = null;
+	public var maxValue:Dynamic = null;
+	public var decimals:Int = 1;
 
-	public var displayFormat:String = '%v'; //How String/Float/Percent/Int values are shown, %v = Current value, %d = Default value
+	public var displayFormat:String = '%v';
 	public var name:String = 'Unknown';
 
 	public function new(name:String, variable:String, type:OptionType, defaultValue:Dynamic = 'null variable value', ?options:Array<String> = null)
@@ -423,7 +444,6 @@ class GameplayOption
 
 	public function change()
 	{
-		//nothing lol
 		if(onChange != null)
 			onChange();
 	}
