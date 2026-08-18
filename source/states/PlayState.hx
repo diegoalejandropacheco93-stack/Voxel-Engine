@@ -1,4 +1,18 @@
-private function keysCheck():Void
+package states;
+
+import flixel.FlxG;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import objects.Note;
+import objects.StrumNote;
+import objects.NoteSplash;
+import backend.ClientPrefs;
+import backend.LuaUtils;
+import backend.BaseStage;
+
+class PlayState extends MusicBeatState
+{
+	private function keysCheck():Void
 	{
 		// HOLDING
 		var holdArray:Array<Bool> = [];
@@ -11,13 +25,11 @@ private function keysCheck():Void
 			releaseArray.push(controls.justReleased(key));
 		}
 
-		// TO DO: Find a better way to handle controller inputs, this should work for now
 		if(controls.controllerMode && pressArray.contains(true))
 			for (i in 0...pressArray.length)
 				if(pressArray[i])
 					keyPressed(i);
 
-		// ONLY DO NOTE CHECKING IF THERE'S NOTES TO HIT
 		if (notes.length > 0)
 		{
 			for (daNote in notes.members)
@@ -216,10 +228,9 @@ private function keysCheck():Void
 			updateScoreText();
 	}
 
-	// --- OPTIMIZACIÓN: DISABLE NOTE SPARKS / SPLASHES ---
 	public function spawnNoteSplashOnNote(note:Note)
 	{
-		if (ClientPrefs.data.disableSparks) return; // Cancela el render de chispas si está activado en Opciones
+		if (ClientPrefs.data.disableSparks) return;
 
 		if (ClientPrefs.data.noteSplashes && note != null)
 		{
@@ -250,7 +261,6 @@ private function keysCheck():Void
 		if (beat % boyfriend.danceEveryNumBeats == 0 && boyfriend != null)
 			boyfriend.dance();
 
-		// --- OPTIMIZACIÓN: LOW QUALITY STAGE ---
 		if (!ClientPrefs.data.lowQualityStage)
 		{
 			stagesFunc(function(stage:BaseStage) {
@@ -258,7 +268,6 @@ private function keysCheck():Void
 			});
 		}
 
-		// Icon Bop Style Customization
 		if (iconP1 != null && iconP2 != null)
 		{
 			switch (ClientPrefs.data.iconBopStyle)
@@ -274,14 +283,13 @@ private function keysCheck():Void
 				case 'Pixel':
 					iconP1.scale.set(1.3, 1.3);
 					iconP2.scale.set(1.3, 1.3);
-				default: // Default FNF Bop
+				default:
 					iconP1.scale.set(1.2, 1.2);
 					iconP2.scale.set(1.2, 1.2);
 			}
 		}
 	}
 
-	// --- OPTIMIZACIÓN: LIMPIEZA DE MEMORIA RAM AL SALIR DEL STATE ---
 	override public function destroy():Void
 	{
 		super.destroy();
@@ -292,7 +300,6 @@ private function keysCheck():Void
 		}
 	}
 
-	// Dynamic Script Calls & Helpers
 	#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
 	public function callOnScripts(funcName:String, ?args:Array<Dynamic>, ?ignoreStops:Bool = false):Dynamic
 	{
