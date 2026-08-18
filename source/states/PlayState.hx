@@ -185,7 +185,7 @@ private function keysCheck():Void
 		boyfriend.playAnim(animToPlay, true);
 
 		updateScore(true);
-	
+	}
 
 	public function invalidateNote(note:Note):Void
 	{
