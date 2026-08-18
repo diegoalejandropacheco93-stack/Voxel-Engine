@@ -185,7 +185,7 @@ private function keysCheck():Void
 		boyfriend.playAnim(animToPlay, true);
 
 		updateScore(true);
-	}
+	
 
 	public function invalidateNote(note:Note):Void
 	{
@@ -360,3 +360,4 @@ private function keysCheck():Void
 		if (scoreTxt != null) scoreTxt.alpha = ClientPrefs.data.hudAlpha;
 		if (timeBar != null) timeBar.visible = (ClientPrefs.data.timeBarType != 'Disabled') && !ClientPrefs.data.hideHud;
 	}
+}
