@@ -139,4 +139,5 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	{
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 	}
+
 }
