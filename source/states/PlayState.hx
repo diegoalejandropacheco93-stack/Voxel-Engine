@@ -1,4 +1,19 @@
-private function keysCheck():Void
+package states;
+
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import backend.ClientPrefs;
+import objects.Note;
+import objects.StrumNote;
+import objects.NoteSplash;
+import psychlua.LuaUtils;
+import stages.BaseStage;
+
+class PlayState extends MusicBeatState
+{
+	private function keysCheck():Void
 	{
 		// HOLDING
 		var holdArray:Array<Bool> = [];
@@ -360,3 +375,4 @@ private function keysCheck():Void
 		if (scoreTxt != null) scoreTxt.alpha = ClientPrefs.data.hudAlpha;
 		if (timeBar != null) timeBar.visible = (ClientPrefs.data.timeBarType != 'Disabled') && !ClientPrefs.data.hideHud;
 	}
+}
