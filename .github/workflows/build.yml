@@ -1,7 +1,25 @@
-buildWindows:
+name: Build
+
+on:
+  push:
+    branches: [ main, experimental ]
+  pull_request:
+    branches: [ main, experimental ]
+  workflow_dispatch:
+
+jobs:
+  buildWindows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4.1.7
+      - uses: actions/checkout@v4
+
+      - name: Cache haxelib
+        uses: actions/cache@v4
+        with:
+          path: C:\\haxelib
+          key: ${{ runner.os }}-haxelib-${{ hashFiles('**/haxelib.json') }}
+          restore-keys: |
+            ${{ runner.os }}-haxelib-
 
       - uses: krdlab/setup-haxe@master
         with:
@@ -24,13 +42,29 @@ buildWindows:
         shell: cmd
         
       - name: Create Version Tag
-        run: echo "${{github.run_id}}" > VERSION
-        
+        shell: pwsh
+        run: |
+          Set-Content -Path VERSION -Value "${{ github.run_id }}"
+
       - name: Compile
-        run: haxelib run lime build windows --app-version="4.0.0-${{ github.run_id}}" -D officialBuild
-        
+        shell: pwsh
+        run: |
+          haxelib run lime build windows --app-version="4.0.0-${{ github.run_id }}" -D officialBuild
+
+      - name: Include VERSION in artifact
+        shell: pwsh
+        run: |
+          $dest = 'export/release/windows/bin'
+          if (Test-Path $dest) {
+            Copy-Item -Path VERSION -Destination $dest -Force
+            Write-Host "Copied VERSION to $dest"
+          } else {
+            Write-Host "Destination $dest not found; skipping VERSION copy"
+          }
+
       - name: Publish Artifact
-        uses: actions/upload-artifact@v4.3.4
+        uses: actions/upload-artifact@v4
         with:
           name: windowsBuild
           path: export/release/windows/bin
+          if-no-files-found: warn
