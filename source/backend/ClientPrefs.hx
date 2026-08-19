@@ -6,6 +6,8 @@ import flixel.input.gamepad.FlxGamepadInputID;
 import openfl.filters.ShaderFilter;
 import flixel.FlxG;
 import sys.FileSystem;
+import flixel.util.FlxColor;
+import flixel.math.FlxMath;
 
 import states.TitleState;
 
@@ -50,22 +52,24 @@ import states.TitleState;
 	public var checkForUpdates:Bool = true;
 	public var comboStacking:Bool = true;
 	
-	public var gameplaySettings:Map<String, Dynamic> = [
-		'scrollspeed' => 1.0,
-		'scrolltype' => 'multiplicative', 
-		'songspeed' => 1.0,
-		'healthgain' => 1.0,
-		'healthloss' => 1.0,
-		'instakill' => false,
-		'practice' => false,
-		'botplay' => false,
-		'opponentplay' => false,
+	public var gameplaySettings:Map<String, Dynamic> = (function() {
+		var m:Map<String, Dynamic> = new Map<String, Dynamic>();
+		m.set('scrollspeed', 1.0);
+		m.set('scrolltype', 'multiplicative');
+		m.set('songspeed', 1.0);
+		m.set('healthgain', 1.0);
+		m.set('healthloss', 1.0);
+		m.set('instakill', false);
+		m.set('practice', false);
+		m.set('botplay', false);
+		m.set('opponentplay', false);
 		// --- Variables de GameplayChangers ---
-		'sustainMissDrain' => true,
-		'strumLineBG' => false,
-		'strumLineOpacity' => 0.5,
-		'noteoffset' => 0
-	];
+		m.set('sustainMissDrain', true);
+		m.set('strumLineBG', false);
+		m.set('strumLineOpacity', 0.5);
+		m.set('noteoffset', 0);
+		return m;
+	})();
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
 	public var ratingOffset:Int = 0;
@@ -112,43 +116,43 @@ class ClientPrefs {
 	//Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		//Key Bind, Name for ControlsSubState
-		'note_up'		=> [W, UP],
-		'note_left'		=> [A, LEFT],
-		'note_down'		=> [S, DOWN],
-		'note_right'	=> [D, RIGHT],
+		'note_up' 		=> [FlxKey.W, FlxKey.UP],
+		'note_left' 		=> [FlxKey.A, FlxKey.LEFT],
+		'note_down' 		=> [FlxKey.S, FlxKey.DOWN],
+		'note_right' 	=> [FlxKey.D, FlxKey.RIGHT],
 		
-		'ui_up'			=> [W, UP],
-		'ui_left'		=> [A, LEFT],
-		'ui_down'		=> [S, DOWN],
-		'ui_right'		=> [D, RIGHT],
+		'ui_up' 		=> [FlxKey.W, FlxKey.UP],
+		'ui_left' 		=> [FlxKey.A, FlxKey.LEFT],
+		'ui_down' 		=> [FlxKey.S, FlxKey.DOWN],
+		'ui_right' 	=> [FlxKey.D, FlxKey.RIGHT],
 		
-		'accept'		=> [SPACE, ENTER],
-		'back'			=> [BACKSPACE, ESCAPE],
-		'pause'			=> [ENTER, ESCAPE],
-		'reset'			=> [R],
+		'accept' 		=> [FlxKey.SPACE, FlxKey.ENTER],
+		'back' 			=> [FlxKey.BACKSPACE, FlxKey.ESCAPE],
+		'pause' 		=> [FlxKey.ENTER, FlxKey.ESCAPE],
+		'reset' 		=> [FlxKey.R],
 		
-		'volume_mute'	=> [ZERO],
-		'volume_up'		=> [NUMPADPLUS, PLUS],
-		'volume_down'	=> [NUMPADMINUS, MINUS],
+		'volume_mute' 	=> [FlxKey.ZERO],
+		'volume_up' 		=> [FlxKey.NUMPADPLUS, FlxKey.PLUS],
+		'volume_down' 	=> [FlxKey.NUMPADMINUS, FlxKey.MINUS],
 		
-		'debug_1'		=> [SEVEN],
-		'debug_2'		=> [EIGHT]
+		'debug_1' 		=> [FlxKey.SEVEN],
+		'debug_2' 		=> [FlxKey.EIGHT]
 	];
 	public static var gamepadBinds:Map<String, Array<FlxGamepadInputID>> = [
-		'note_up'		=> [DPAD_UP, Y],
-		'note_left'		=> [DPAD_LEFT, X],
-		'note_down'		=> [DPAD_DOWN, A],
-		'note_right'	=> [DPAD_RIGHT, B],
+		'note_up' 		=> [FlxGamepadInputID.DPAD_UP, FlxGamepadInputID.Y],
+		'note_left' 		=> [FlxGamepadInputID.DPAD_LEFT, FlxGamepadInputID.X],
+		'note_down' 		=> [FlxGamepadInputID.DPAD_DOWN, FlxGamepadInputID.A],
+		'note_right' 	=> [FlxGamepadInputID.DPAD_RIGHT, FlxGamepadInputID.B],
 		
-		'ui_up'			=> [DPAD_UP, LEFT_STICK_DIGITAL_UP],
-		'ui_left'		=> [DPAD_LEFT, LEFT_STICK_DIGITAL_LEFT],
-		'ui_down'		=> [DPAD_DOWN, LEFT_STICK_DIGITAL_DOWN],
-		'ui_right'		=> [DPAD_RIGHT, LEFT_STICK_DIGITAL_RIGHT],
+		'ui_up' 		=> [FlxGamepadInputID.DPAD_UP, FlxGamepadInputID.LEFT_STICK_DIGITAL_UP],
+		'ui_left' 		=> [FlxGamepadInputID.DPAD_LEFT, FlxGamepadInputID.LEFT_STICK_DIGITAL_LEFT],
+		'ui_down' 		=> [FlxGamepadInputID.DPAD_DOWN, FlxGamepadInputID.LEFT_STICK_DIGITAL_DOWN],
+		'ui_right' 	=> [FlxGamepadInputID.DPAD_RIGHT, FlxGamepadInputID.LEFT_STICK_DIGITAL_RIGHT],
 		
-		'accept'		=> [A, START],
-		'back'			=> [B],
-		'pause'			=> [START],
-		'reset'			=> [BACK]
+		'accept' 		=> [FlxGamepadInputID.A, FlxGamepadInputID.START],
+		'back' 			=> [FlxGamepadInputID.B],
+		'pause' 		=> [FlxGamepadInputID.START],
+		'reset' 		=> [FlxGamepadInputID.BACK]
 	];
 	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
 	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;
