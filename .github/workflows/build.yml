@@ -11,61 +11,39 @@ jobs:
   buildWindows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache haxelib
-        uses: actions/cache@v4
-        with:
-          path: C:\haxelib
-          key: ${{ runner.os }}-haxelib-${{ hashFiles('**/haxelib.json') }}
-          restore-keys: |
-            ${{ runner.os }}-haxelib-
+      - uses: actions/checkout@v4.1.7
 
       - uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.3.4
-
+      
       - name: Install Haxelib
-        shell: cmd
         run: |
-          if not exist C:\haxelib mkdir C:\haxelib
           haxelib setup C:\haxelib
-          haxelib install lime 8.1.2
-          haxelib install openfl 9.3.3
-          haxelib install flixel 5.6.1
-          haxelib install flixel-addons 3.2.2
-          haxelib install flixel-ui 2.6.1
-          haxelib install hscript 2.5.0
-          haxelib install hscript-iris 1.0.1
-          haxelib install tjson 1.4.0
-          haxelib install hxDiscordRpc 1.2.6
-          haxelib install grig.audio
+          haxelib install hxcpp
+          haxelib install lime
+          haxelib install openfl
+          haxelib install flixel
+          haxelib install flixel-addons
+          haxelib install flixel-ui
+          haxelib install hscript
+          haxelib install hscript-iris
+          haxelib install tjson
+          haxelib install hxDiscordRpc
+          haxelib install flxanimate
+          haxelib install linc_luajit
+          haxelib install hxvlc
           haxelib run lime setup
-
+        shell: cmd
+        
       - name: Create Version Tag
-        shell: pwsh
-        run: |
-          Set-Content -Path VERSION -Value "${{ github.run_id }}"
-
+        run: echo "${{github.run_id}}" > VERSION
+        
       - name: Compile
-        shell: pwsh
-        run: |
-          haxelib run lime build windows --app-version="4.0.0-${{ github.run_id }}" -D officialBuild
-
-      - name: Include VERSION in artifact
-        shell: pwsh
-        run: |
-          $dest = 'export/release/windows/bin'
-          if (Test-Path $dest) {
-            Copy-Item -Path VERSION -Destination $dest -Force
-            Write-Host "Copied VERSION to $dest"
-          } else {
-            Write-Host "Destination $dest not found; skipping VERSION copy"
-          }
-
+        run: haxelib run lime build windows --app-version="4.0.0-${{ github.run_id}}" -D officialBuild
+        
       - name: Publish Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.4
         with:
           name: windowsBuild
           path: export/release/windows/bin
-          if-no-files-found: warn
