@@ -16,7 +16,7 @@ jobs:
       - name: Cache haxelib
         uses: actions/cache@v4
         with:
-          path: C:\\haxelib
+          path: C:\haxelib
           key: ${{ runner.os }}-haxelib-${{ hashFiles('**/haxelib.json') }}
           restore-keys: |
             ${{ runner.os }}-haxelib-
@@ -24,10 +24,11 @@ jobs:
       - uses: krdlab/setup-haxe@master
         with:
           haxe-version: 4.3.4
-      
+
       - name: Install Haxelib
+        shell: cmd
         run: |
-          mkdir C:\haxelib
+          if not exist C:\haxelib mkdir C:\haxelib
           haxelib setup C:\haxelib
           haxelib install lime 8.1.2
           haxelib install openfl 9.3.3
@@ -38,9 +39,9 @@ jobs:
           haxelib install hscript-iris 1.0.1
           haxelib install tjson 1.4.0
           haxelib install hxDiscordRpc 1.2.6
+          haxelib install grig.audio
           haxelib run lime setup
-        shell: cmd
-        
+
       - name: Create Version Tag
         shell: pwsh
         run: |
