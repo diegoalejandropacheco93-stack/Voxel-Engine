@@ -114,6 +114,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 	var bindingBlack:FlxSprite;
 	var bindingText:Alphabet;
 	var bindingText2:Alphabet;
+	
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -221,7 +222,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 									default:
 								}
 								updateTextFrom(curOption);
-								curOption.change();
+								curOption.change(); // Un simple click (un frame) no laguea, lo dejamos.
 								FlxG.sound.play(Paths.sound('scrollMenu'));
 							}
 							else if(curOption.type != STRING)
@@ -241,7 +242,10 @@ class BaseOptionsMenu extends MusicBeatSubstate
 									default:
 								}
 								updateTextFrom(curOption);
-								curOption.change();
+								
+								// --- VOXEL ENGINE OPTIMIZATION ---
+								// Se quitó "curOption.change()" de aquí.
+								// Evitamos ejecutar funciones gráficas pesadas 60 veces por segundo mientras deslizas la barra.
 							}
 						}
 		
@@ -250,6 +254,12 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					}
 					else if(controls.UI_LEFT_R || controls.UI_RIGHT_R)
 					{
+						// --- VOXEL ENGINE OPTIMIZATION ---
+						// Aplicar el cambio SOLO cuando sueltas la tecla. ¡Fluidez al 100%!
+						if (holdTime > 0) {
+							curOption.change();
+						}
+
 						if(holdTime > 0.5) FlxG.sound.play(Paths.sound('scrollMenu'));
 						holdTime = 0;
 					}

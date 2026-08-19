@@ -1,6 +1,8 @@
 package options;
 
 import flixel.FlxG;
+import backend.Language;
+import backend.ClientPrefs;
 
 class GameplaySettingsSubState extends BaseOptionsMenu
 {
@@ -52,7 +54,7 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 			BOOL);
 		addOption(option);
 
-		// --- NUEVAS OPCIONES ---
+		// --- NUEVAS OPCIONES (VOXEL ENGINE) ---
 		var option:Option = new Option('Smooth Health Bar',
 			'If checked, the health bar transitions smoothly.',
 			'smoothBar',
@@ -139,5 +141,4 @@ class GameplaySettingsSubState extends BaseOptionsMenu
 	{
 		FlxG.autoPause = ClientPrefs.data.autoPause;
 	}
-
 }

@@ -1,10 +1,10 @@
 package options;
 
-import openfl.Lib;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.text.FlxText;
 import backend.ClientPrefs;
+import backend.Language;
 
 class GraphicsSettingsSubState extends BaseOptionsMenu
 {
@@ -13,7 +13,7 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	public function new()
 	{
-		title = 'Graphic & RAM Optimization';
+		title = Language.getPhrase('graphics_menu', 'Graphic & RAM Optimization');
 		rpcTitle = 'Graphics Settings Menu';
 
 		// --- RESOLUCIÓN Y ESCALADO DE RENDER (VOXEL ENGINE) ---
@@ -187,10 +187,12 @@ class GraphicsSettingsSubState extends BaseOptionsMenu
 
 	function onChangeAntiAliasing()
 	{
-		for (sprite in members)
+		for (basic in members)
 		{
-			var sprite:FlxSprite = cast sprite;
-			if(sprite != null && (sprite is FlxSprite) && !(sprite is FlxText)) {
+			// BUG ARREGLADO: Verificamos de forma segura antes de convertirlo (Casteo)
+			if (basic != null && (basic is FlxSprite) && !(basic is FlxText))
+			{
+				var sprite:FlxSprite = cast basic;
 				sprite.antialiasing = ClientPrefs.data.antialiasing;
 			}
 		}

@@ -9,6 +9,12 @@ import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import objects.Alphabet;
+import backend.ClientPrefs; // Necesario para el antialiasing
+import backend.Paths;
+import backend.Language;
+#if DISCORD_ALLOWED
+import backend.Discord;
+#end
 
 class OptionsState extends MusicBeatState
 {
@@ -27,6 +33,9 @@ class OptionsState extends MusicBeatState
 	public static var onPlayState:Bool = false;
 
 	var isSecretMode:Bool = false;
+	
+	// Variable para rastrear que nuestra música está sonando y no reiniciarla a cada rato
+	public static var optionMusicPlaying:Bool = false;
 
 	function openSelectedSubstate(label:String) {
 		switch(label)
@@ -39,6 +48,10 @@ class OptionsState extends MusicBeatState
 				if(menuBG != null) {
 					menuBG.loadGraphic(Paths.image('menuDesat'));
 					menuBG.color = 0xFF2B3A82;
+					// Optimización: Aseguramos que cubra la pantalla igual
+					menuBG.setGraphicSize(FlxG.width);
+					menuBG.updateHitbox();
+					menuBG.screenCenter();
 					menuBG.visible = true;
 				}
 				openSubState(new options.ControlsSubState());
@@ -76,18 +89,21 @@ class OptionsState extends MusicBeatState
 		DiscordClient.changePresence("Options Menu", null);
 		#end
 
-		// Reproducir música de opciones si no está sonando
-		if (FlxG.sound.music == null || !FlxG.sound.music.playing)
+		// Reproducir música de opciones de forma inteligente
+		if (!optionMusicPlaying)
 		{
-			FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7);
+			FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7, true);
+			optionMusicPlaying = true;
 		}
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('MenuOption'));
 		bg.antialiasing = ClientPrefs.data.antialiasing;
 		bg.color = 0xFFFFFFFF;
+		// Hacemos que siempre se ajuste al ancho de la pantalla, evitando bordes negros
+		bg.setGraphicSize(FlxG.width); 
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.active = false; // Optimización de rendimiento
+		bg.active = false; // Optimización de rendimiento (Voxel Engine)
 		add(bg);
 		menuBG = bg;
 
@@ -124,6 +140,9 @@ class OptionsState extends MusicBeatState
 			else
 				menuBG.loadGraphic(Paths.image('Option7'));
 
+			menuBG.setGraphicSize(FlxG.width);
+			menuBG.updateHitbox();
+			menuBG.screenCenter();
 			menuBG.color = 0xFFFFFFFF;
 			menuBG.visible = true;
 		}
@@ -154,12 +173,17 @@ class OptionsState extends MusicBeatState
 					menuBG.loadGraphic(Paths.image('MenuOption'));
 				
 				menuBG.color = 0xFFFFFFFF;
+				menuBG.setGraphicSize(FlxG.width);
+				menuBG.updateHitbox();
+				menuBG.screenCenter();
 			}
 		}
 
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			optionMusicPlaying = false; // Reiniciamos el tracker al salir
+
 			if(onPlayState)
 			{
 				StageData.loadDirectory(PlayState.SONG);
@@ -168,6 +192,7 @@ class OptionsState extends MusicBeatState
 			}
 			else
 			{
+				// Devolvemos la música del menú principal
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				MusicBeatState.switchState(new MainMenuState());
 			}

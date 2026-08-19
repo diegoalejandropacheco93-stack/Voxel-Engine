@@ -1,11 +1,24 @@
 package states;
 
+import flixel.FlxSprite;
 import flixel.FlxObject;
 import flixel.effects.FlxFlicker;
 import lime.app.Application;
 import states.editors.MasterEditorMenu;
 import options.OptionsState;
 import options.MenuLuaBGLoader;
+import flixel.FlxG;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
+import flixel.math.FlxMath;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+import backend.ClientPrefs;
+import backend.Paths;
+import backend.Discord;
+import backend.Achievements;
+import backend.CoolUtil;
+import backend.Mods;
 
 enum MainMenuColumn {
 	LEFT;
@@ -38,6 +51,7 @@ class MainMenuState extends MusicBeatState
 	var leftOption:String = #if ACHIEVEMENTS_ALLOWED 'achievements' #else null #end;
 	var rightOption:String = 'options';
 
+	var bg:FlxSprite;
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 
@@ -64,35 +78,37 @@ class MainMenuState extends MusicBeatState
 		// 1. Instanciamos el cargador de fondo animado Lua
 		var animatedBG:MenuLuaBGLoader = new MenuLuaBGLoader("menu_test");
 
-		// 2. Fondo estático original
-		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		bg.scrollFactor.set(0, yScroll);
-		bg.setGraphicSize(Std.int(bg.width * 1.175));
-		bg.updateHitbox();
-		bg.screenCenter();
-		add(bg);
+		// --- VOXEL ENGINE OPTIMIZATION ---
+		// 2. Evaluamos el estado desde el archivo Lua ANTES de cargar imágenes
+		if (animatedBG.isActive)
+		{
+			// Si hay fondo animado, SOLO añadimos el animado (Ahorramos muchísima RAM)
+			add(animatedBG);
+		}
+		else
+		{
+			// 3. Si no hay fondo animado, cargamos los clásicos de Psych Engine
+			bg = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
+			bg.antialiasing = ClientPrefs.data.antialiasing;
+			bg.scrollFactor.set(0, yScroll);
+			bg.setGraphicSize(Std.int(bg.width * 1.175));
+			bg.updateHitbox();
+			bg.screenCenter();
+			add(bg);
+
+			magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
+			magenta.antialiasing = ClientPrefs.data.antialiasing;
+			magenta.scrollFactor.set(0, yScroll);
+			magenta.setGraphicSize(Std.int(magenta.width * 1.175));
+			magenta.updateHitbox();
+			magenta.screenCenter();
+			magenta.visible = false;
+			magenta.color = 0xFFfd719b;
+			add(magenta);
+		}
 
 		camFollow = new FlxObject(0, 0, 1, 1);
 		add(camFollow);
-
-		magenta = new FlxSprite(-80).loadGraphic(Paths.image('menuDesat'));
-		magenta.antialiasing = ClientPrefs.data.antialiasing;
-		magenta.scrollFactor.set(0, yScroll);
-		magenta.setGraphicSize(Std.int(magenta.width * 1.175));
-		magenta.updateHitbox();
-		magenta.screenCenter();
-		magenta.visible = false;
-		magenta.color = 0xFFfd719b;
-		add(magenta);
-
-		// 3. Evaluar el estado de 'active' desde el archivo Lua
-		if (animatedBG.isAnimatedActive)
-		{
-			bg.visible = false;
-			magenta.visible = false;
-			add(animatedBG);
-		}
 
 		menuItems = new FlxTypedGroup<FlxSprite>();
 		add(menuItems);
@@ -226,6 +242,8 @@ class MainMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				selectedSomethin = true;
 
+				// --- VOXEL ENGINE OPTIMIZATION ---
+				// Solo activamos el destello magenta si realmente existe (si Lua estaba desactivado)
 				if (magenta != null)
 					magenta.visible = true;
 

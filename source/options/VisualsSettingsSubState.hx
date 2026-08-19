@@ -1,4 +1,4 @@
-package options;
+package options; // <-- BUG ARREGLADO: Faltaba la ruta del paquete
 
 import objects.Note;
 import objects.StrumNote;
@@ -6,6 +6,12 @@ import objects.NoteSplash;
 import objects.Alphabet;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
+import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.FlxG;
+import backend.ClientPrefs;
+import backend.Paths;
+import backend.Mods;
+import backend.Language;
 
 class VisualsSettingsSubState extends BaseOptionsMenu
 {
@@ -92,7 +98,7 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 		option.decimals = 1;
 		addOption(option);
 
-		// --- CONFIGURACIÓN DE HUD Y ELEMENTOS VISUALES ---
+		// --- CONFIGURACIÓN DE HUD Y ELEMENTOS VISUALES (VOXEL ENGINE) ---
 		var option:Option = new Option('Hide HUD',
 			'If checked, hides most HUD elements.',
 			'hideHud',
@@ -352,7 +358,9 @@ class VisualsSettingsSubState extends BaseOptionsMenu
 
 	override function destroy()
 	{
-		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
+		// --- BUG ARREGLADO: Regresar a la música de opciones correcta (Voxel Engine) ---
+		if(changedMusic && !OptionsState.onPlayState) FlxG.sound.playMusic(Paths.music('MusicOption'), 0.7, true);
+		
 		Note.globalRgbShaders = [];
 		super.destroy();
 	}

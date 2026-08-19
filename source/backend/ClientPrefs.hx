@@ -49,6 +49,7 @@ import states.TitleState;
 	public var pauseMusic:String = 'Tea Time';
 	public var checkForUpdates:Bool = true;
 	public var comboStacking:Bool = true;
+	
 	public var gameplaySettings:Map<String, Dynamic> = [
 		'scrollspeed' => 1.0,
 		'scrolltype' => 'multiplicative', 
@@ -58,7 +59,12 @@ import states.TitleState;
 		'instakill' => false,
 		'practice' => false,
 		'botplay' => false,
-		'opponentplay' => false
+		'opponentplay' => false,
+		// --- Variables de GameplayChangers ---
+		'sustainMissDrain' => true,
+		'strumLineBG' => false,
+		'strumLineOpacity' => 0.5,
+		'noteoffset' => 0
 	];
 
 	public var comboOffset:Array<Int> = [0, 0, 0, 0];
@@ -73,6 +79,7 @@ import states.TitleState;
 	public var language:String = 'en-US';
 
 	// --- NUEVAS VARIABLES AGREGADAS DE VOXEL ENGINE ---
+	
 	// Variables Gráficas y Optimización RAM
 	public var resolution:String = '1280x720';
 	public var enableRenderScale:Bool = false;
@@ -81,10 +88,10 @@ import states.TitleState;
 	public var disableSparks:Bool = false;
 	public var lowQualityStage:Bool = false;
 
-	// Variables Gameplay
-	public var sustainMissDrain:Bool = true;
-	public var strumLineBG:Bool = false;
-	public var strumLineOpacity:Float = 0.5;
+	// Variables Gameplay Adicionales
+	public var smoothBar:Bool = true;
+	public var crossfade:String = 'Fade';
+	public var crossfadeSpeed:Float = 1.0;
 
 	// Variables Visuales / UI
 	public var minimalScore:Bool = false;
@@ -179,9 +186,11 @@ class ClientPrefs {
 		if (data.bloom && data.shaders)
 		{
 			var shaderPath:String = 'assets/shared/shaders/bloom.frag';
+			#if sys
 			if (FileSystem.exists(shaderPath))
 			{
-				var bloomShader = new flixel.system.hasKey.FlxRuntimeShader(
+				// --- BUG ARREGLADO: Ruta correcta del Shader en HaxeFlixel ---
+				var bloomShader = new flixel.addons.display.FlxRuntimeShader(
 					sys.io.File.getContent(shaderPath)
 				);
 				bloomShader.setFloat('intensity', 0.4);
@@ -190,6 +199,7 @@ class ClientPrefs {
 				var filter = new ShaderFilter(bloomShader);
 				FlxG.game.filters = [filter];
 			}
+			#end
 		}
 		else
 		{
