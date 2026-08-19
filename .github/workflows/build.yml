@@ -38,7 +38,7 @@ jobs:
           haxelib run lime build windows -release
 
       - name: Upload Executable Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # <-- CAMBIAMOS A V4
         with:
           name: VoxelEngine-Windows
           path: export/release/windows/bin/
