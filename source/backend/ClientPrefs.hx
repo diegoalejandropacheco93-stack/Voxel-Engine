@@ -154,8 +154,8 @@ class ClientPrefs {
 		'pause' 		=> [FlxGamepadInputID.START],
 		'reset' 		=> [FlxGamepadInputID.BACK]
 	];
-	public static var defaultKeys:Map<String, Array<FlxKey>> = null;
-	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = null;
+	public static var defaultKeys:Map<String, Array<FlxKey>> = keyBinds.copy();
+	public static var defaultButtons:Map<String, Array<FlxGamepadInputID>> = gamepadBinds.copy();
 
 	public static function resetKeys(controller:Null<Bool> = null)
 	{
@@ -174,8 +174,9 @@ class ClientPrefs {
 	{
 		var keyBind:Array<FlxKey> = keyBinds.get(key);
 		var gamepadBind:Array<FlxGamepadInputID> = gamepadBinds.get(key);
-		while(keyBind != null && keyBind.contains(NONE)) keyBind.remove(NONE);
-		while(gamepadBind != null && gamepadBind.contains(NONE)) gamepadBind.remove(NONE);
+		// Use explicit NONE constants to avoid undefined global symbols
+		while(keyBind != null && keyBind.contains(FlxKey.NONE)) keyBind.remove(FlxKey.NONE);
+		while(gamepadBind != null && gamepadBind.contains(FlxGamepadInputID.NONE)) gamepadBind.remove(FlxGamepadInputID.NONE);
 	}
 
 	public static function loadDefaultKeys()
@@ -308,7 +309,7 @@ class ClientPrefs {
 	}
 	public static function toggleVolumeKeys(?turnOn:Bool = true)
 	{
-		final emptyArray = [];
+		final emptyArray:Array<Dynamic> = [];
 		FlxG.sound.muteKeys = turnOn ? TitleState.muteKeys : emptyArray;
 		FlxG.sound.volumeDownKeys = turnOn ? TitleState.volumeDownKeys : emptyArray;
 		FlxG.sound.volumeUpKeys = turnOn ? TitleState.volumeUpKeys : emptyArray;
